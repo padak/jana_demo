@@ -46,7 +46,7 @@ def get_table_preview(_conn, table_name, limit=20):
     
     try:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM {table_name} LIMIT {limit}")
+        cursor.execute(f'SELECT * FROM "{table_name}" LIMIT {limit}')
         columns = [desc[0] for desc in cursor.description]
         data = cursor.fetchall()
         return columns, data
