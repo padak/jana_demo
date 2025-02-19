@@ -32,6 +32,43 @@ def show_logout_button():
             del st.session_state[key]
         st.rerun()
 
+def display_tables():
+    """Display available tables with refresh button and better formatting"""
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.subheader("Available Tables")
+    with col2:
+        if st.button("🔄 Refresh Tables"):
+            # Clear the cache for get_tables function
+            get_tables.clear()
+            st.rerun()
+    
+    tables = get_tables()
+    
+    if not tables:
+        st.warning("No tables found or unable to connect to database.")
+        return tables
+    
+    # Display tables in a more organized way
+    st.write(f"Found {len(tables)} tables in the schema:")
+    
+    # Create a container with custom styling for tables
+    with st.container():
+        for table in tables:
+            st.markdown(f"""
+            <div style='
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 5px;
+                margin: 5px 0;
+                background-color: #f8f9fa;
+            '>
+                📊 <code>{table}</code>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    return tables
+
 def main():
     st.set_page_config(
         page_title="Snowflake Data Viewer",
@@ -54,16 +91,11 @@ def main():
     # Welcome message
     st.write(f"Welcome, {username}!")
 
-    # Get list of tables
-    tables = get_tables()
+    # Display tables with refresh button and better formatting
+    tables = display_tables()
     
     if not tables:
-        st.warning("No tables found or unable to connect to database.")
         return
-
-    st.subheader("Available Tables")
-    st.write(f"Found {len(tables)} tables in the schema:")
-    st.write(tables)
 
     # If user has preview permission, show table preview
     if "preview_data" in permissions:
