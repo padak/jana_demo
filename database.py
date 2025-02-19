@@ -38,6 +38,26 @@ def get_tables():
         conn.close()
 
 @st.cache_data
+def get_table_details(table_name):
+    """Get detailed information about a table using DESC TABLE."""
+    conn = get_snowflake_connection()
+    if not conn:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f'DESC TABLE "{table_name}"')
+        columns = ["name", "type", "kind", "null?", "default", "primary key", "unique key", "check", "expression", "comment"]
+        data = cursor.fetchall()
+        return columns, data
+    except Exception as e:
+        st.error(f"Error fetching table details: {str(e)}")
+        return None, None
+    finally:
+        cursor.close()
+        conn.close()
+
+@st.cache_data
 def get_table_preview(_conn, table_name, limit=20):
     """Get a preview of the specified table."""
     conn = get_snowflake_connection()
